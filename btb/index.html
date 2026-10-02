@@ -1,0 +1,445 @@
+<title>クリエイティブシート</title>
+<meta name="description" content="バイオエステBTB SMS/HTMLメールCRレビュー">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --grad-1:#5F82FF;
+    --grad-2:#6D5EF5;
+    --grad-3:#7B4FF0;
+    --ink:#2c2c30;
+    --ink-dim:#6b6a85;
+    --line:#e6e4f5;
+    --accent:#6D5EF5;
+    --accent-soft:#eeecff;
+    --panel:#ffffffee;
+    --panel-solid:#ffffff;
+    --grid-line:#e5e3f2;
+    --grid-head:#f7f6fd;
+  }
+  *{box-sizing:border-box}
+  html, body{height:100%}
+  body{
+    color:var(--ink);
+    font-family:"Noto Sans JP","Hiragino Sans",sans-serif;
+    margin:0; padding:0; padding-block:0;
+    background:#ffffff;
+    overflow:hidden; /* app-shell: header/sidebar fixed, only main scrolls */
+  }
+  a{color:inherit}
+
+  .shell{
+    display:grid;
+    grid-template-columns:240px 1fr;
+    grid-template-rows:5px 50px 1fr;
+    grid-template-areas:
+      "accent accent"
+      "header header"
+      "sidebar main";
+    height:100vh;
+  }
+
+  .accent-bar{
+    grid-area:accent;
+    background:linear-gradient(90deg, var(--grad-1), var(--grad-2), var(--grad-3));
+  }
+
+  header.topbar{
+    grid-area:header;
+    display:flex; align-items:center;
+    padding-inline:22px;
+    background:#ffffff;
+    border-bottom:1px solid var(--line);
+    color:#3a3a3e;
+    z-index:5;
+  }
+  header.topbar h1{font-size:16.5px; margin:0; font-weight:700; letter-spacing:.03em; color:#434343; font-family:"Noto Sans JP","Noto Sans",sans-serif}
+
+  nav.lps{
+    grid-area:sidebar;
+    background:#fff;
+    border-right:1px solid var(--line);
+    box-shadow:2px 0 10px -4px #00000018;
+    padding:14px 10px;
+    overflow-y:auto;
+    display:flex; flex-direction:column; gap:3px;
+    position:relative; z-index:3;
+  }
+  nav.lps .nav-caption{
+    font-size:10.5px; color:var(--ink-dim); letter-spacing:.1em;
+    text-transform:uppercase; padding:8px 10px 6px;
+  }
+  nav.lps button{
+    all:unset; cursor:pointer; padding:8px 11px; border-radius:6px;
+    font-size:13px; color:var(--ink);
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    border-left:2px solid transparent;
+  }
+  nav.lps button:hover{background:var(--grid-head)}
+  nav.lps button.active{
+    background:var(--accent-soft);
+    color:var(--accent); font-weight:700;
+    border-left:2px solid var(--accent);
+  }
+  nav.lps button .tag{font-size:10.5px; color:var(--ink-dim); font-variant-numeric:tabular-nums}
+  nav.lps button.active .tag{color:var(--accent)}
+
+  main{
+    grid-area:main;
+    overflow-y:auto;
+    padding:24px 28px 60px;
+  }
+
+  .head{display:flex; flex-direction:column; gap:2px; margin-bottom:14px}
+  .head .eyebrow{font-size:11.5px; color:var(--ink-dim); font-variant-numeric:tabular-nums}
+  .head h2{margin:0; font-size:21px; color:#434343; font-weight:900; font-family:"Noto Sans JP","Noto Sans",sans-serif}
+
+  .sheet-tabs{display:flex; gap:2px; margin-bottom:0}
+  .sheet-tabs button{
+    all:unset; cursor:pointer;
+    padding:10px 22px;
+    font-size:13px; font-weight:700;
+    color:var(--ink-dim);
+    background:#efefef;
+    border:1px solid var(--line);
+    border-bottom:none;
+    border-radius:0;
+    position:relative; top:1px;
+  }
+  .sheet-tabs button.active{
+    background:var(--panel-solid);
+    color:var(--accent);
+    border-color:var(--line);
+  }
+
+  .sheet-panel{
+    border:none;
+    background:transparent;
+    padding:0;
+    margin-bottom:24px;
+  }
+
+  .edit-hint{
+    font-size:11px; color:var(--ink-dim); margin:0 0 0; padding:8px 14px 0;
+    display:flex; align-items:center; gap:6px;
+  }
+  .edit-hint .dot{width:6px; height:6px; border-radius:50%; background:#3ecf8e}
+  .edit-hint .dot.off{background:#c9c7dd}
+
+  .sheet-wrap{
+    border:1px solid var(--grid-line);
+    border-radius:0 8px 8px 8px;
+    overflow:auto;
+    background:var(--panel-solid);
+    width:100%;
+    box-shadow:0 12px 28px -14px #00000030;
+  }
+  table.sheet{border-collapse:collapse; font-size:13px; width:max-content; min-width:100%}
+  table.sheet th, table.sheet td{
+    border:1px solid var(--grid-line);
+    padding:3px 10px;
+    text-align:left;
+    vertical-align:top;
+    white-space:pre-wrap;
+    line-height:1.3;
+  }
+  table.sheet thead th{
+    background:#efefef; color:var(--ink-dim); font-weight:700;
+    position:sticky; top:0; z-index:2; min-width:112px;
+    padding:12px 10px;
+    text-align:center; vertical-align:middle;
+  }
+  table.sheet tbody th{
+    background:#efefef; color:var(--ink-dim); font-weight:700;
+    position:sticky; left:0; z-index:1; min-width:110px;
+  }
+  table.sheet td{min-width:112px; max-width:220px}
+  table.sheet tr.sms-row td{font-size:12px; min-width:160px; line-height:1.5; padding:10px}
+  table.sheet tr.center-row td{text-align:center; vertical-align:middle}
+  table.sheet tr.vcenter-row td{vertical-align:middle}
+  table.sheet tr.preview-row td{padding:10px; vertical-align:top; text-align:center}
+  table.sheet tr.preview-row td img{display:block; width:100%; max-width:220px; margin:0 auto}
+  table.sheet tr.preview-row .long-stack{max-width:220px; margin:0 auto}
+  table.sheet tr.preview-row .long-stack img{margin:0}
+  table.sheet tr.preview-row .long-stack img:first-child{border-radius:4px 4px 0 0}
+  table.sheet tr.preview-row .long-stack img:last-child{border-radius:0 0 4px 4px}
+
+  [contenteditable="true"]{outline:none; cursor:text}
+  [contenteditable="true"]:hover{background:var(--accent-soft)}
+  [contenteditable="true"]:focus{background:#fff; box-shadow:inset 0 0 0 2px var(--accent)}
+
+  .row-label-cell{display:flex; align-items:center; gap:6px; white-space:nowrap}
+  .row-label-cell .label-text{flex:1; min-width:60px}
+  .reorder-btns{display:flex; flex-direction:column; gap:1px}
+  .reorder-btns button{
+    all:unset; cursor:pointer; font-size:9px; line-height:1;
+    color:var(--ink-dim); padding:2px 3px; border-radius:3px;
+  }
+  .reorder-btns button:hover{background:#ffffff; color:var(--accent)}
+  .reorder-btns button:disabled{opacity:.25; cursor:default}
+  .reorder-btns button:disabled:hover{background:none; color:var(--ink-dim)}
+
+  [hidden]{display:none!important}
+
+  @media (max-width:760px){
+    .shell{
+      grid-template-columns:1fr;
+      grid-template-rows:5px 50px auto 1fr;
+      grid-template-areas:
+        "accent"
+        "header"
+        "sidebar"
+        "main";
+      height:auto; min-height:100vh;
+    }
+    body{overflow:auto}
+    nav.lps{flex-direction:row; overflow-x:auto; -webkit-overflow-scrolling:touch; border-right:none; border-bottom:1px solid var(--line)}
+    nav.lps button{white-space:nowrap; flex:0 0 auto}
+    nav.lps button .tag{display:none}
+    main{overflow-y:visible}
+  }
+</style>
+
+<div class="shell">
+  <div class="accent-bar"></div>
+  <header class="topbar">
+    <h1>クリエイティブシート</h1>
+  </header>
+  <nav class="lps" id="lpNav"></nav>
+  <main>
+    <div class="head">
+      <span class="eyebrow" id="lpLabel"></span>
+      <h2 id="lpTitle"></h2>
+    </div>
+
+    <div class="sheet-tabs" id="sheetTabs">
+      <button data-sheet="sms" class="active">SMS</button>
+      <button data-sheet="html">HTMLメール</button>
+    </div>
+    <div class="sheet-panel">
+      <div class="sheet-wrap">
+        <p class="edit-hint" id="editHint" hidden><span class="dot off" id="editDot"></span><span id="editStatus">読み込み中…</span></p>
+        <table class="sheet" id="dataTable"></table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const EDITABLE = false; // true: Claudeアーティファクト版(db編集可) / false: Netlify公開版(閲覧専用)
+const SEED_VERSION = "20261002143527"; // SEEDの内容を更新するたびに値を変える(dbの古いデータより優先させるため)
+const SEED = [{"label": "btb", "category": "バイオエステBTB", "sms": [["通数", "1通目", "2通目", "3通目", "4通目", "5通目", "6通目", "7通目", "8通目", "9通目", "10通目"], ["送信タイミング", "離脱から10分後", "1通目送信から2時間後", "2通目送信から2時間後", "3通目送信から24時間後", "4通目送信から24時間後", "5通目送信から48時間後", "6通目送信から48時間後", "7通目送信から48時間後", "8通目送信から168時間後", "9通目送信から168時間後"], ["狙い", "想起・リマインド", "ベネフィット再提示", "数字・実績訴求", "ターゲット層訴求", "フロー説明・簡単さ", "不安解消", "お客様の声", "比較・選ばれる理由", "緊急性・スピード感", "最終後押し"], ["SMS", "バイオエステBTB【公式】\n\n申込み未完了の方へ\n自動送信しています🔔\n\nセルライトを本格ケアして\n全身バランスよく\nスリムになれるエステ✨\n体験が今なら92%OFF！\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\n食事制限も激しい運動も\n不要で痩せられる✨\nリバウンドしにくい\n身体づくりをサポート！\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\n某口コミサイトNo.1✨\n20万人が選んだ\n本格セルライトケアで\nマイナス10cmも可能💡\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\nこんな方におすすめ💁\n・セルライトが気になる\n・リバウンドを繰り返す\n・全身バランスよく\n　痩せたい\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\nご利用の流れは簡単✨\n①無料相談を予約\n②来店でカウンセリング\n③ケアスタート！\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\nメスや医療処置は\n一切使いません✨\n身体にやさしいケアで\n痛くない・怖くない🙌\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\n「-10.5kg達成」\n「ウエスト-20.6cm」\n実際の体験者の声が\n続々届いています😊\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\n業界唯一M3wave搭載の\n複合マシンによる\n最上級プレミアムケアも\n選べます✨\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\n体験コースは\n先着人数制です⏰\nお悩みのままにせず\n今すぐチェックを\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}", "バイオエステBTB【公式】\n\n理想のスリムボディへ\n最後の一歩を\n踏み出しませんか？✨\nあなたの変化を\n全力サポートします🙌\n\n無料相談はこちら👇\n{{アフィリンク}}\n\n配信停止：{{配信停止URL}}"]], "html": [["通数", "1通目", "2通目", "3通目", "4通目", "5通目", "6通目", "7通目", "8通目", "9通目", "10通目"], ["送信タイミング", "離脱から10分後", "1通目送信から2時間後", "2通目送信から2時間後", "3通目送信から24時間後", "4通目送信から24時間後", "5通目送信から48時間後", "6通目送信から48時間後", "7通目送信から48時間後", "8通目送信から168時間後", "9通目送信から168時間後"], ["狙い", "サービス想起", "サービス想起", "サービス想起", "サービス想起", "不安の正体を言語化", "不安の正体を言語化", "不安の正体を言語化", "不安の正体を言語化", "自己肯定", "自己肯定"], ["件名", "【バイオエステBTB】体験が半額！セルライトケア、試しませんか？", "【バイオエステBTB】まだ間に合います！憧れのボディへの第一歩", "【バイオエステBTB】エステ体験が半額！リバウンドしにくい身体へ", "【バイオエステBTB】全身バランス痩せが体験コースで実感できる理由", "【バイオエステBTB】メスなしで全身スリムに。肥満に悩む方へ", "【バイオエステBTB】リバウンド・セルライトに悩む方へ届けたい", "【バイオエステBTB】施術の流れを公開！無理なく痩せるステップとは", "【バイオエステBTB】初回から変化を実感！施術の流れをご紹介します", "【バイオエステBTB】食事制限なしでセルライトを落とせる理由とは", "【バイオエステBTB】食事制限も運動もなし、痩身専門サロンの実力"]], "msgCount": 10, "sharedLong": false, "longImages": [["b15_msg1_long_part1.jpg", "b15_shared_long_part2.jpg", "b15_shared_long_part3.jpg", "b15_shared_long_part4.jpg", "b15_shared_long_part5.jpg", "b15_shared_long_part6.jpg"], ["h16_msg1_long_part1.jpg", "h16_shared_long_part2.jpg", "h16_shared_long_part3.jpg", "h16_shared_long_part4.jpg", "h16_shared_long_part5.jpg", "h16_shared_long_part6.jpg"], ["b15_msg2_long_part1.jpg", "b15_shared_long_part2.jpg", "b15_shared_long_part3.jpg", "b15_shared_long_part4.jpg", "b15_shared_long_part5.jpg", "b15_shared_long_part6.jpg"], ["h16_msg2_long_part1.jpg", "h16_shared_long_part2.jpg", "h16_shared_long_part3.jpg", "h16_shared_long_part4.jpg", "h16_shared_long_part5.jpg", "h16_shared_long_part6.jpg"], ["b15_msg3_long_part1.jpg", "b15_shared_long_part2.jpg", "b15_shared_long_part3.jpg", "b15_shared_long_part4.jpg", "b15_shared_long_part5.jpg", "b15_shared_long_part6.jpg"], ["h16_msg3_long_part1.jpg", "h16_shared_long_part2.jpg", "h16_shared_long_part3.jpg", "h16_shared_long_part4.jpg", "h16_shared_long_part5.jpg", "h16_shared_long_part6.jpg"], ["b15_msg4_long_part1.jpg", "b15_shared_long_part2.jpg", "b15_shared_long_part3.jpg", "b15_shared_long_part4.jpg", "b15_shared_long_part5.jpg", "b15_shared_long_part6.jpg"], ["h16_msg4_long_part1.jpg", "h16_shared_long_part2.jpg", "h16_shared_long_part3.jpg", "h16_shared_long_part4.jpg", "h16_shared_long_part5.jpg", "h16_shared_long_part6.jpg"], ["b15_msg5_long_part1.jpg", "b15_shared_long_part2.jpg", "b15_shared_long_part3.jpg", "b15_shared_long_part4.jpg", "b15_shared_long_part5.jpg", "b15_shared_long_part6.jpg"], ["h16_msg5_long_part1.jpg", "h16_shared_long_part2.jpg", "h16_shared_long_part3.jpg", "h16_shared_long_part4.jpg", "h16_shared_long_part5.jpg", "h16_shared_long_part6.jpg"]]}, {"label": "btb-short", "category": "バイオエステBTB(短縮組み合わせ版)", "sms": [["通数", "1通目", "2通目", "3通目"], ["構成", "b15: ヒーロー + 身体の悩み〜危険度〜美しいボディライン", "b15: ヒーロー + サイズダウンできる+EC特典", "b15: ヒーロー + FLOW/FAQ"], ["件名", "【バイオエステBTB】体験が半額！セルライトケア、試しませんか？", "【バイオエステBTB】メスなしで全身スリムに。肥満に悩む方へ", "【バイオエステBTB】食事制限なしでセルライトを落とせる理由とは"]], "html": [["通数", "1通目", "2通目", "3通目"], ["構成", "b15: ヒーロー + 身体の悩み〜危険度〜美しいボディライン", "b15: ヒーロー + サイズダウンできる+EC特典", "b15: ヒーロー + FLOW/FAQ"], ["件名", "【バイオエステBTB】体験が半額！セルライトケア、試しませんか？", "【バイオエステBTB】メスなしで全身スリムに。肥満に悩む方へ", "【バイオエステBTB】食事制限なしでセルライトを落とせる理由とは"]], "msgCount": 3, "longImages": [["msg1_part1.jpg", "msg1_part2.jpg", "msg1_part3.jpg", "msg1_part4.jpg"], ["msg3_part1.jpg", "msg3_part2.jpg", "msg3_part3.jpg", "msg3_part4.jpg"], ["msg5_part1.jpg", "msg5_part2.jpg", "msg5_part3.jpg", "msg5_part4.jpg"]]}];
+
+function shortUrl(label, msgN){
+  return `images/${label}_msg${msgN}_short.png`;
+}
+// item.sharedLong=true: 全通で件名が共通の案件向け(例: 総合買取華丸)。
+// part1〜6すべて全通共通の画像を使い、アップロード容量を節約する。
+// それ以外(デフォルト): 通ごとに件名が異なる案件向け(標準)。part1(件名+送信者行を
+// 含む)だけ通ごとに別画像、2枚目以降は本文が全通共通なのでLP単位で1枚だけ
+// アップロードして使い回す(アップロード容量節約)。
+function longUrl(item, msgN, partI){
+  if (item.sharedLong) return `images/${item.label}_shared${partI}.png`;
+  if (partI === 1) return `images/${item.label}_msg${msgN}_long_part1.jpg`;
+  return `images/${item.label}_shared_long_part${partI}.jpg`;
+}
+const LONG_PARTS_DEFAULT = 6; // FVごとの区切りにCTAを差し込んだ構成(セクション×3 + CTA×3)
+// LPごとにパーツ数が異なる場合はここに登録(例: LP19はカードがセクション境界をまたぐため
+// CTAを1箇所省略しており5パーツ)
+const LONG_PARTS_OVERRIDE = { lp19: 5 };
+
+let current = SEED[0].label;
+let currentSheet = 'sms';
+let db = null;
+let canWrite = false;
+
+// label -> { sms: rows[], html: rows[] } (live, editable copy)
+const state = {};
+SEED.forEach(item => {
+  state[item.label] = { sms: item.sms, html: item.html };
+});
+
+const nav = document.getElementById('lpNav');
+SEED.forEach(item => {
+  const btn = document.createElement('button');
+  btn.innerHTML = `<span>${item.category}</span><span class="tag">${item.label}</span>`;
+  btn.dataset.label = item.label;
+  btn.addEventListener('click', () => { current = item.label; render(); });
+  nav.appendChild(btn);
+});
+
+document.querySelectorAll('.sheet-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => { currentSheet = btn.dataset.sheet; render(); });
+});
+
+function escapeHtml(s){
+  return (s ?? '').toString()
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildRows(rows, sheetKey, item){
+  const header = rows[0];
+  const body = rows.slice(1);
+  const thead = `<thead><tr>${header.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead>`;
+  const editAttr = EDITABLE ? 'contenteditable="true"' : '';
+  const CENTER_ROWS = new Set(['通数', '送信タイミング', '狙い']);
+  const VCENTER_ROWS = new Set(['件名']);
+  const tbody = body.map((r, ri) => {
+    const isSms = r[0] === 'SMS';
+    const isCentered = CENTER_ROWS.has(r[0]);
+    const isVCentered = VCENTER_ROWS.has(r[0]);
+    const cells = r.slice(1).map((c, ci) =>
+      `<td ${editAttr} data-ri="${ri}" data-ci="${ci+1}">${escapeHtml(c)}</td>`
+    ).join('');
+    const reorderBtns = EDITABLE ? `
+          <span class="reorder-btns">
+            <button data-move="up" data-ri="${ri}" ${ri===0?'disabled':''}>▲</button>
+            <button data-move="down" data-ri="${ri}" ${ri===body.length-1?'disabled':''}>▼</button>
+          </span>` : '';
+    return `<tr class="${isSms ? 'sms-row' : ''} ${isCentered ? 'center-row' : ''} ${isVCentered ? 'vcenter-row' : ''}">
+      <th>
+        <div class="row-label-cell">
+          <span class="label-text" ${editAttr} data-ri="${ri}" data-ci="0">${escapeHtml(r[0])}</span>${reorderBtns}
+        </div>
+      </th>${cells}</tr>`;
+  }).join('');
+  return { thead, tbody, nCols: header.length - 1 };
+}
+
+function buildPreviewRow(item, nCols){
+  // 通数ごとに1列ずつ、その通の件名を使ったロング版(FV区切りCTA入り)を表示する。
+  // item.longImages: [["b15_msg1_long_part1.jpg","b15_shared_long_part2.jpg",...], ...]
+  // のように通番(msgN、1始まり)ごとに表示する画像ファイル名(images/配下)を明示的に
+  // 指定する(通ごとに参照元LP・パーツ数が異なるケース向け)。未指定の場合はLONG_PARTS_*と
+  // longUrl()による従来の定数パーツ数方式にフォールバックする。
+  const longParts = LONG_PARTS_OVERRIDE[item.label] || LONG_PARTS_DEFAULT;
+  const msgCells = Array.from({length: item.msgCount || nCols}, (_, i) => i + 1).map(msgN => {
+    const files = item.longImages
+      ? item.longImages[msgN - 1].map(f => `images/${f}`)
+      : Array.from({length: longParts}, (_, k) => longUrl(item, msgN, k + 1));
+    const imgs = files.map((src, idx) => `<img src="${src}" alt="${msgN}通目 ロング版${idx + 1}">`).join('');
+    return `<td><div class="long-stack">${imgs}</div></td>`;
+  }).join('');
+  const emptyCells = Array.from({length: Math.max(0, nCols - (item.msgCount || nCols))}).map(() => '<td></td>').join('');
+  return `<tr class="preview-row"><th>プレビュー</th>${msgCells}${emptyCells}</tr>`;
+}
+
+function render(){
+  const item = SEED.find(d => d.label === current);
+  const rows = state[current][currentSheet];
+
+  document.getElementById('lpTitle').textContent = item.category;
+  document.getElementById('lpLabel').textContent = item.label;
+
+  [...nav.children].forEach(b => b.classList.toggle('active', b.dataset.label === current));
+  document.querySelectorAll('.sheet-tabs button').forEach(b => b.classList.toggle('active', b.dataset.sheet === currentSheet));
+
+  const { thead, tbody, nCols } = buildRows(rows, currentSheet, item);
+  const table = document.getElementById('dataTable');
+  table.innerHTML = thead + '<tbody>' + tbody + (currentSheet === 'html' ? buildPreviewRow(item, nCols) : '') + '</tbody>';
+
+  if (EDITABLE) {
+    table.querySelectorAll('[contenteditable]').forEach(el => {
+      el.addEventListener('blur', onCellEdit);
+    });
+    table.querySelectorAll('button[data-move]').forEach(btn => {
+      btn.addEventListener('click', onReorder);
+    });
+  }
+}
+
+let saveTimer = null;
+function scheduleSave(label, sheetKey){
+  clearTimeout(saveTimer);
+  setStatus('saving');
+  saveTimer = setTimeout(() => saveNow(label, sheetKey), 700);
+}
+
+async function saveNow(label, sheetKey){
+  if (!db || !canWrite) { setStatus(canWrite ? 'idle' : 'readonly'); return; }
+  try {
+    await db.doc(`data/${label}/${sheetKey}`).set({ rows: state[label][sheetKey], seedVersion: SEED_VERSION });
+    setStatus('saved');
+  } catch (e) {
+    setStatus('error');
+  }
+}
+
+function setStatus(kind){
+  const dot = document.getElementById('editDot');
+  const text = document.getElementById('editStatus');
+  if (kind === 'saving'){ dot.className = 'dot off'; text.textContent = '保存中…'; }
+  else if (kind === 'saved'){ dot.className = 'dot'; text.textContent = '保存済み(全員に反映されます)'; }
+  else if (kind === 'readonly'){ dot.className = 'dot off'; text.textContent = '閲覧のみ(編集権限がありません)'; }
+  else if (kind === 'error'){ dot.className = 'dot off'; text.textContent = '保存に失敗しました'; }
+  else { dot.className = canWrite ? 'dot' : 'dot off'; text.textContent = canWrite ? 'セルをクリックして編集できます' : '読み込み中…'; }
+}
+
+function onCellEdit(e){
+  const el = e.target;
+  const ri = parseInt(el.dataset.ri, 10);
+  const ci = parseInt(el.dataset.ci, 10);
+  const rows = state[current][currentSheet];
+  const bodyRow = rows[ri + 1];
+  if (!bodyRow) return;
+  const newVal = el.textContent;
+  if (bodyRow[ci] === newVal) return;
+  bodyRow[ci] = newVal;
+  scheduleSave(current, currentSheet);
+}
+
+function onReorder(e){
+  const btn = e.currentTarget;
+  const ri = parseInt(btn.dataset.ri, 10);
+  const dir = btn.dataset.move;
+  const rows = state[current][currentSheet];
+  const bodyStart = 1;
+  const a = bodyStart + ri;
+  const b = dir === 'up' ? a - 1 : a + 1;
+  if (b < bodyStart || b >= rows.length) return;
+  [rows[a], rows[b]] = [rows[b], rows[a]];
+  scheduleSave(current, currentSheet);
+  render();
+}
+
+async function initDb(){
+  try {
+    if (!window.claude || !window.claude.use) { db = null; canWrite = false; }
+    else {
+      db = await window.claude.use('db');
+      const user = await window.claude.use('user');
+      canWrite = user ? !!(await user.can('data.write')) : false;
+    }
+  } catch (e) {
+    db = null; canWrite = false;
+  }
+  if (!db){ setStatus('idle'); return; }
+
+  // 初回のみ: 各LPのデータをdbに書き込み(既に存在すればそちらを使う)。
+  // ただしSEED_VERSIONがdb保存時と異なる場合(=私がSEEDの内容を更新した場合)は、
+  // dbの古いデータより新しいSEEDを優先して上書きする(バージョンが同じ場合のみ、
+  // ユーザーがライブ編集した内容をdbから読み込んで尊重する)。
+  for (const item of SEED) {
+    for (const sheetKey of ['sms', 'html']) {
+      try {
+        const ref = db.doc(`data/${item.label}/${sheetKey}`);
+        const snap = await ref.get();
+        const data = snap.exists ? snap.data() : null;
+        if (data && Array.isArray(data.rows) && data.seedVersion === SEED_VERSION) {
+          state[item.label][sheetKey] = data.rows;
+        } else if (canWrite) {
+          await ref.set({ rows: state[item.label][sheetKey], seedVersion: SEED_VERSION });
+        }
+      } catch (e) { /* keep seed data on failure */ }
+    }
+  }
+  setStatus('idle');
+  render();
+}
+
+render();
+if (EDITABLE) {
+  document.getElementById('editHint').hidden = false;
+  initDb();
+}
+</script>
