@@ -173,6 +173,11 @@
   .gm-txt a{color:#1a73e8}
   .gm-unsub{text-align:center;margin:10px 0 4px}
   .gm-unsub a{display:inline-block;padding:6px 14px;border:1px solid #bbb;border-radius:999px;color:#333;font-size:12px;text-decoration:none}
+
+  table.sheet{border-collapse:separate; border-spacing:0; border-top:1px solid var(--grid-line); border-left:1px solid var(--grid-line)}
+  table.sheet th, table.sheet td{border:0; border-right:1px solid var(--grid-line); border-bottom:1px solid var(--grid-line)}
+  table.sms-sheet td, table.sms-sheet th:not(:first-child){width:240px; min-width:240px; max-width:240px}
+  table.sms-sheet th:first-child{width:110px; min-width:110px; max-width:110px}
   [contenteditable="true"]{outline:none; cursor:text}
   [contenteditable="true"]:hover{background:var(--accent-soft)}
   [contenteditable="true"]:focus{background:#fff; box-shadow:inset 0 0 0 2px var(--accent)}
@@ -306,7 +311,7 @@ function buildRows(rows, sheetKey, item){
             <button data-move="up" data-ri="${ri}" ${ri===0?'disabled':''}>▲</button>
             <button data-move="down" data-ri="${ri}" ${ri===body.length-1?'disabled':''}>▼</button>
           </span>` : '';
-    return `<tr class="${isSms ? 'sms-row' : ''} ${STICKY_ROWS.has(r[0]) ? 'stk' : ''} ${isCentered ? 'center-row' : ''} ${isVCentered ? 'vcenter-row' : ''}">
+    return `<tr class="${isSms ? 'sms-row' : ''} ${(sheetKey === 'html' && STICKY_ROWS.has(r[0])) ? 'stk' : ''} ${isCentered ? 'center-row' : ''} ${isVCentered ? 'vcenter-row' : ''}">
       <th>
         <div class="row-label-cell">
           <span class="label-text" ${editAttr} data-ri="${ri}" data-ci="0">${escapeHtml(r[0])}</span>${reorderBtns}
@@ -349,8 +354,20 @@ function render(){
   const { thead, tbody, nCols } = buildRows(rows, currentSheet, item);
   const table = document.getElementById('dataTable');
   table.innerHTML = thead + '<tbody>' + tbody + (currentSheet === 'html' ? buildPreviewRow(item, nCols) : '') + '</tbody>';
-  let stickyTop = table.querySelector('thead').offsetHeight;
-  table.querySelectorAll('tr.stk').forEach(tr => { tr.querySelectorAll('th,td').forEach(c => { c.style.top = stickyTop + 'px'; c.style.position = 'sticky'; c.style.zIndex = '2'; c.style.background = '#fff'; }); stickyTop += tr.offsetHeight; });
+  const theadEl = table.querySelector('thead');
+  table.querySelectorAll('tr.stk').forEach(tr => theadEl.appendChild(tr));
+  let stickyTop = 0;
+  theadEl.querySelectorAll('tr').forEach(tr => {
+    const isStk = tr.classList.contains('stk');
+    tr.querySelectorAll('th,td').forEach(c => {
+      c.style.position = 'sticky';
+      c.style.top = stickyTop + 'px';
+      c.style.zIndex = '3';
+      c.style.background = isStk ? '#fff' : '#efefef';
+    });
+    stickyTop += tr.getBoundingClientRect().height;
+  });
+  table.className = currentSheet === 'sms' ? 'sheet sms-sheet' : 'sheet';
 
   if (EDITABLE) {
     table.querySelectorAll('[contenteditable]').forEach(el => {
